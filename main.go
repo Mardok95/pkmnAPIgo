@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 )
 
 // We need to create some struct to manage the response of the API
@@ -30,47 +29,78 @@ type Pokemon struct {
 // A struct to map the Pokemon's Species
 type PokemonSpecies struct {
 	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+type FlavorText struct {
+	Text string `json:"flavor_text"`
+}
+
+type PokemonDescription struct {
+	Name        string       `json:"name"`
+	Description []FlavorText `json:"flavor_text_entries"`
 }
 
 func main() {
 	// First of all we need to query the API endpoint using http.Get
 	// the result is mapped into response and err
-	response, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")
+	// Also we use and http.HandleFunc to star a server to show the result of the API GET
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		response, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")
 
-	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
-	}
+		if err != nil {
+			fmt.Fprintf(w, err.Error())
+			return
+		}
 
-	// Perform a conversion of the response body from bytes into something
-	// that can be printed out in the console
+		// Perform a conversion of the response body from bytes into something
+		// that can be printed out in the console
 
-	// We read all the stream of bytes with ioutil.ReadAll and then
-	// convert in string with string(responseData)
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Use the following print to check if the request is OK
-	// fmt.Println(string(responseData))
+		// We read all the stream of bytes with ioutil.ReadAll and then
+		// convert in string with string(responseData)
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	// We need now to Unmarshal the returned JSON string into a new var
-	// We declare a new variable of Response type
-	var responseObject Response
-	json.Unmarshal(responseData, &responseObject)
+		// We need now to Unmarshal the returned JSON string into a new var
+		// We declare a new variable of Response type
+		var responseObject Response
+		json.Unmarshal(responseData, &responseObject)
 
-	// We use the address of the variabile because json.Unmarshal need
-	// to modify the data and not a copy of the data.
+		html := "<head><head><title>" + responseObject.Name + "</title></head><body><h1>" + responseObject.Name + "</h1><ul>"
+		for i := 0; i < len(responseObject.Pokemon); i++ {
+			html += "<li><a href='/pokemon?id=" + string(responseObject.Pokemon[i].Species.URL) + "'>" + responseObject.Pokemon[i].Species.Name + "</a></li>"
+		}
 
-	// Use the following print to check if the Unmarshal operation is ok
+		html += "</ul></body></html>"
 
-	//fmt.Println(responseObject)
-	//fmt.Println(len(responseObject.Pokemon))
+		fmt.Fprintf(w, html)
 
-	// To list all of our firstGen pokemon we need to create a for loops
-	// for every object in our responseObject pokemon array
+	})
 
-	for _, pokemon := range responseObject.Pokemon {
-		fmt.Println(pokemon.Species.Name)
-	}
+	http.HandleFunc("/pokemon", func(w http.ResponseWriter, r *http.Request) {
+		pokemonID := r.URL.Query().Get("id")
+		response, err := http.Get(pokemonID)
+
+		if err != nil {
+			fmt.Fprintf(w, err.Error())
+			return
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var pokemonDescription PokemonDescription
+		json.Unmarshal(responseData, &pokemonDescription)
+
+		html := "<html><head><title>" + pokemonDescription.Name + "</title></head><body><h1>" + pokemonDescription.Name + "</h1><p>" + pokemonDescription.Description[0].Text + "</p></body></html>"
+		fmt.Fprintf(w, html)
+
+	})
+
+	http.ListenAndServe(":8080", nil)
+
 }

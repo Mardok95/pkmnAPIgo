@@ -1,4 +1,4 @@
-package v2
+package main
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 )
 
 // A Response struct to map the JSON response
@@ -26,19 +27,37 @@ type PokemonSpecies struct {
 	URL  string `json:"url"`
 }
 
-// Devi continuare qua caro mio
+// A struct to map a Single Pokemon
 type SinglePokemon struct {
-	BaseHappiness int `json:"base_happiness"`
-	CaptureRate   int `json:"capture_rate"`
+	BaseHappiness     int          `json:"base_happiness"`
+	CaptureRate       int          `json:"capture_rate"`
+	GenderRate        int          `json:"gender_rate"`
+	GenderDifferences bool         `json:"has_gender_differences"`
+	Description       []FlavorText `json:"flavor_text_entries"`
+	Name              string       `json:"name"`
+	EvolvesFrom       []Evolution  `json:"evolves_from_species"`
+	ShapeOfPkmn       []Shape      `json:"shape"`
+	ArchetypeOfPkmn   []Genera     `json:"genera"`
 }
 
+// A struct to map the description of the Single Pokemon
 type FlavorText struct {
 	Text string `json:"flavor_text"`
 }
 
-type PokemonDescription struct {
-	Name        string       `json:"name"`
-	Description []FlavorText `json:"flavor_text_entries"`
+// A struct to map the evolution chain of a Single Pokemon
+type Evolution struct {
+	Anchestor string `json:"name"`
+}
+
+// A struct to map the shape of a Single Pokemon
+type Shape struct {
+	PkmnShape string `json:"name"`
+}
+
+// A struct to map the genera of a Single Pokemon
+type Genera struct {
+	Genus string `json:"genus"`
 }
 
 func main() {
@@ -83,10 +102,12 @@ func main() {
 			log.Fatal(err)
 		}
 
-		var pokemonDescription PokemonDescription
+		var pokemonDescription SinglePokemon
 		json.Unmarshal(responseData, &pokemonDescription)
+		description := pokemonDescription.Description[0].Text
+		description = regexp.MustCompile(`[^a-zA-Z0-9.'Éé ]+`).ReplaceAllString(description, " ")
 
-		html := "<html><head><title>" + pokemonDescription.Name + "</title></head><body><h1>" + pokemonDescription.Name + "</h1><p>" + pokemonDescription.Description[0].Text + "</p></body></html>"
+		html := "<html><head><title>" + pokemonDescription.Name + "</title></head><body><h1>" + pokemonDescription.Name + "</h1><p>" + description + "</p></body></html>"
 		fmt.Fprintf(w, html)
 
 	})

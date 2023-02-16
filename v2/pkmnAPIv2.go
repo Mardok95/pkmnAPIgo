@@ -26,6 +26,12 @@ type PokemonSpecies struct {
 	URL  string `json:"url"`
 }
 
+// Devi continuare qua caro mio
+type SinglePokemon struct {
+	BaseHappiness int `json:"base_happiness"`
+	CaptureRate   int `json:"capture_rate"`
+}
+
 type FlavorText struct {
 	Text string `json:"flavor_text"`
 }

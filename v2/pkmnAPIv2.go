@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -59,6 +60,13 @@ type Shape struct {
 type Genera struct {
 	Genus string `json:"genus"`
 }
+
+// Create a global instance of the Template method of the template package.
+// You’ll access this template instance from various parts of your program.
+var tmplt *template.Template
+
+// Follow the following tutorial
+// https://www.makeuseof.com/go-html-templating/
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

@@ -65,6 +65,12 @@ type Genera struct {
 // You’ll access this template instance from various parts of your program.
 var tmplt *template.Template
 
+// I need a struct to display the info on the web page
+type DispPokemon struct {
+	Headline string
+	Body     string
+}
+
 // Follow the following tutorial
 // https://www.makeuseof.com/go-html-templating/
 
@@ -110,13 +116,24 @@ func main() {
 			log.Fatal(err)
 		}
 
+		tmplt, _ = template.ParseFiles("description.html")
 		var pokemonDescription SinglePokemon
 		json.Unmarshal(responseData, &pokemonDescription)
 		description := pokemonDescription.Description[0].Text
 		description = regexp.MustCompile(`[^a-zA-Z0-9.'Éé ]+`).ReplaceAllString(description, " ")
+		event := DispPokemon{
+			Headline: pokemonDescription.Name,
+			Body:     description,
+		}
 
-		html := "<html><head><title>" + pokemonDescription.Name + "</title></head><body><h1>" + pokemonDescription.Name + "</h1><p>" + description + "</p></body></html>"
-		fmt.Fprintf(w, html)
+		prova := tmplt.Execute(w, event)
+
+		if prova != nil {
+			return
+		}
+
+		//html := "<html><head><title>" + pokemonDescription.Name + "</title></head><body><h1>" + pokemonDescription.Name + "</h1><p>" + description + "</p></body></html>"
+		//fmt.Fprintf(w, html)
 
 	})
 

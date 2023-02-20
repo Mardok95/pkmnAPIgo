@@ -106,47 +106,32 @@ func main() {
 		pokemonID := r.URL.Query().Get("id")
 		response, err := http.Get(pokemonID)
 
-		fmt.Println("109")
-
 		if err != nil {
 			fmt.Fprint(w, err.Error())
 			return
 		}
-
-		fmt.Println("116")
 
 		responseData, err := io.ReadAll(response.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		fmt.Println("123")
-
-		tmplt, _ = template.ParseFiles("description.html")
+		tmplt, _ = template.ParseFiles("assets/embed/templates/description.html")
 		var pokemonDescription SinglePokemon
 		json.Unmarshal(responseData, &pokemonDescription)
 		description := pokemonDescription.Description[0].Text
 		description = regexp.MustCompile(`[^a-zA-Z0-9.'Éé ]+`).ReplaceAllString(description, " ")
-
-		fmt.Println("131")
 
 		event := DispPokemon{
 			Headline: pokemonDescription.Name,
 			Body:     description,
 		}
 
-		fmt.Println("138")
-
 		err = tmplt.Execute(w, event)
 
 		if err != nil {
 			return
 		}
-
-		fmt.Println("142")
-
-		//html := "<html><head><title>" + pokemonDescription.Name + "</title></head><body><h1>" + pokemonDescription.Name + "</h1><p>" + description + "</p></body></html>"
-		//fmt.Fprintf(w, html)
 
 	})
 

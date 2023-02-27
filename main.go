@@ -71,9 +71,6 @@ type DispPokemon struct {
 	Body     string
 }
 
-// Follow the following tutorial
-// https://www.makeuseof.com/go-html-templating/
-
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		response, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")

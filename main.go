@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 )
 
 // A Response struct to map the JSON response
@@ -67,9 +68,11 @@ var tmplt *template.Template
 
 // I need a struct to display the info on the web page
 type DispPokemon struct {
-	PkmnName string
-	Headline string
-	Body     string
+	PkmnName     string
+	Headline     string
+	Body         string
+	ImageURL     string
+	ImageAltText string
 }
 
 func main() {
@@ -101,6 +104,8 @@ func main() {
 	http.HandleFunc("/pokemon", func(w http.ResponseWriter, r *http.Request) {
 		pokemonID := r.URL.Query().Get("id")
 		response, err := http.Get(pokemonID)
+		parts := strings.Split(pokemonID, "/")
+		pokedexNumber := parts[len(parts)-2]
 
 		if err != nil {
 			fmt.Fprint(w, err.Error())
@@ -118,10 +123,14 @@ func main() {
 		description := pokemonDescription.Description[0].Text
 		description = regexp.MustCompile(`[^a-zA-Z0-9.'Éé ]+`).ReplaceAllString(description, " ")
 
+		imgURL := "assets/pokemonSprite/" + pokedexNumber + ".png"
+
 		event := DispPokemon{
-			PkmnName: pokemonDescription.Name,
-			Headline: pokemonDescription.Name,
-			Body:     description,
+			PkmnName:     pokemonDescription.Name,
+			Headline:     pokemonDescription.Name,
+			Body:         description,
+			ImageURL:     imgURL,
+			ImageAltText: "Sprite of " + pokemonDescription.Name,
 		}
 
 		err = tmplt.Execute(w, event)

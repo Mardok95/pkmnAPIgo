@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Pokedex Page</title>
+    <title>Kanto Pokedex</title>
 </head>
 <body>
-    <h1>{{ .Headline }}</h1>
-    <p>{{ .Body }}</p>
+    <h1>{{.Name}}</h1>
+    <ul>
+        {{range .Pokemon}}
+        <li><a href='/pokemon?id={{.Species.URL}}'>{{.Species.Name}}</a></li>
+        {{end}}
+    </ul>
 </body>
 </html>

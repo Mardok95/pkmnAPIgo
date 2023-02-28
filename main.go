@@ -67,6 +67,7 @@ var tmplt *template.Template
 
 // I need a struct to display the info on the web page
 type DispPokemon struct {
+	PkmnName string
 	Headline string
 	Body     string
 }
@@ -88,14 +89,12 @@ func main() {
 		var responseObject Response
 		json.Unmarshal(responseData, &responseObject)
 
-		html := "<head><head><title>" + responseObject.Name + "</title></head><body><h1>" + responseObject.Name + "</h1><ul>"
-		for i := 0; i < len(responseObject.Pokemon); i++ {
-			html += "<li><a href='/pokemon?id=" + string(responseObject.Pokemon[i].Species.URL) + "'>" + responseObject.Pokemon[i].Species.Name + "</a></li>"
+		tmplt, _ = template.ParseFiles("assets/embed/templates/pokedex.html")
+
+		err = tmplt.Execute(w, responseObject)
+		if err != nil {
+			log.Fatal(err)
 		}
-
-		html += "</ul></body></html>"
-
-		fmt.Fprint(w, html)
 
 	})
 
@@ -120,6 +119,7 @@ func main() {
 		description = regexp.MustCompile(`[^a-zA-Z0-9.'Éé ]+`).ReplaceAllString(description, " ")
 
 		event := DispPokemon{
+			PkmnName: pokemonDescription.Name,
 			Headline: pokemonDescription.Name,
 			Body:     description,
 		}

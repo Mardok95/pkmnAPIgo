@@ -101,6 +101,12 @@ func main() {
 
 	})
 
+	// Create a file server handler for the "pokemonSprite" directory
+	pokemonSpriteHandler := http.FileServer(http.Dir("assets/pokemonSprite"))
+
+	// Handle requests for PNG files
+	http.Handle("/pokemonSprite/", http.StripPrefix("/pokemonSprite/", pokemonSpriteHandler))
+
 	http.HandleFunc("/pokemon", func(w http.ResponseWriter, r *http.Request) {
 		pokemonID := r.URL.Query().Get("id")
 		response, err := http.Get(pokemonID)

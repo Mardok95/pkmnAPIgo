@@ -77,8 +77,6 @@ type DispPokemon struct {
 
 func main() {
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./pokemonSprite"))))
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		response, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")
 
@@ -101,6 +99,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	})
 

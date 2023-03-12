@@ -76,6 +76,9 @@ type DispPokemon struct {
 }
 
 func main() {
+
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./pokemonSprite"))))
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		response, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")
 
@@ -100,12 +103,6 @@ func main() {
 		}
 
 	})
-
-	// Create a file server handler for the "pokemonSprite" directory
-	pokemonSpriteHandler := http.FileServer(http.Dir("assets/pokemonSprite"))
-
-	// Handle requests for PNG files
-	http.Handle("/pokemonSprite/", http.StripPrefix("/pokemonSprite/", pokemonSpriteHandler))
 
 	http.HandleFunc("/pokemon", func(w http.ResponseWriter, r *http.Request) {
 		pokemonID := r.URL.Query().Get("id")

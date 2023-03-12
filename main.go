@@ -92,7 +92,7 @@ func main() {
 		var responseObject Response
 		json.Unmarshal(responseData, &responseObject)
 
-		tmplt, _ = template.ParseFiles("assets/embed/templates/pokedex.html")
+		tmplt, _ = template.ParseFiles("templates/pokedex.html")
 
 		err = tmplt.Execute(w, responseObject)
 		if err != nil {
@@ -117,13 +117,13 @@ func main() {
 			log.Fatal(err)
 		}
 
-		tmplt, _ = template.ParseFiles("assets/embed/templates/description.html")
+		tmplt, _ = template.ParseFiles("templates/description.html")
 		var pokemonDescription SinglePokemon
 		json.Unmarshal(responseData, &pokemonDescription)
 		description := pokemonDescription.Description[0].Text
 		description = regexp.MustCompile(`[^a-zA-Z0-9.'Éé ]+`).ReplaceAllString(description, " ")
 
-		imgURL := "assets/pokemonSprite/" + pokedexNumber + ".png"
+		imgURL := "static/pokemonSprite/" + pokedexNumber + ".png"
 
 		event := DispPokemon{
 			PkmnName:     pokemonDescription.Name,

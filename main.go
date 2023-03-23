@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -68,11 +69,14 @@ var tmplt *template.Template
 
 // I need a struct to display the info on the web page
 type DispPokemon struct {
-	PkmnName     string
-	Headline     string
-	Body         string
-	ImageURL     string
-	ImageAltText string
+	PkmnName      string
+	Headline      string
+	Body          string
+	ImageURL      string
+	ImageAltText  string
+	CaptureRate   string
+	GenderRate    string
+	BaseHappiness string
 }
 
 func main() {
@@ -129,11 +133,14 @@ func main() {
 		imgURL := "static/pokemonSprite/" + pokedexNumber + ".png"
 
 		event := DispPokemon{
-			PkmnName:     pokemonDescription.Name,
-			Headline:     pokemonDescription.Name,
-			Body:         description,
-			ImageURL:     imgURL,
-			ImageAltText: "Sprite of " + pokemonDescription.Name,
+			PkmnName:      pokemonDescription.Name,
+			Headline:      pokemonDescription.Name,
+			Body:          "DESCRIPTION: " + description,
+			ImageURL:      imgURL,
+			ImageAltText:  "Sprite of " + pokemonDescription.Name,
+			CaptureRate:   "Capture rate: " + strconv.Itoa(pokemonDescription.CaptureRate) + "%",
+			GenderRate:    "Gender rate: " + strconv.Itoa(pokemonDescription.GenderRate) + "%",
+			BaseHappiness: "Base happiness: " + strconv.Itoa(pokemonDescription.BaseHappiness),
 		}
 
 		err = tmplt.Execute(w, event)
